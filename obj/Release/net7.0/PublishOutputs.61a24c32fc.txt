@@ -1,0 +1,7 @@
+C:\Users\Kaas\Documents\FunkySheep\Games\Server_Dotnet\bin\Release\net7.0\publish\Server_Dotnet.exe
+C:\Users\Kaas\Documents\FunkySheep\Games\Server_Dotnet\bin\Release\net7.0\publish\appsettings.Development.json
+C:\Users\Kaas\Documents\FunkySheep\Games\Server_Dotnet\bin\Release\net7.0\publish\appsettings.json
+C:\Users\Kaas\Documents\FunkySheep\Games\Server_Dotnet\bin\Release\net7.0\publish\Server_Dotnet.dll
+C:\Users\Kaas\Documents\FunkySheep\Games\Server_Dotnet\bin\Release\net7.0\publish\Server_Dotnet.deps.json
+C:\Users\Kaas\Documents\FunkySheep\Games\Server_Dotnet\bin\Release\net7.0\publish\Server_Dotnet.runtimeconfig.json
+C:\Users\Kaas\Documents\FunkySheep\Games\Server_Dotnet\bin\Release\net7.0\publish\Server_Dotnet.pdb

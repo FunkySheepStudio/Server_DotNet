@@ -1,0 +1,16 @@
+﻿@page
+@model IndexModel
+@{
+    ViewData["Title"] = "Auth";
+}
+
+<div class="text-center">
+    <h1 class="display-4">Auth</h1>
+    @await Component.InvokeAsync(
+        "QRCode",
+        new {
+            data = @Model.uri?.ToString()
+        }
+    )
+</div>
+

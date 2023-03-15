@@ -1,0 +1,15 @@
+{
+  "version": "0.2.1",
+  "tasks": [
+    {
+      "taskLabel": "tâche-Server_Dotnet",
+      "appliesTo": "Server_Dotnet.csproj",
+      "type": "msbuild"
+    },
+    {
+      "taskLabel": "tâche-Server_Dotnet",
+      "appliesTo": "/",
+      "type": "launch"
+    }
+  ]
+}
