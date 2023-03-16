@@ -1,5 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using NBitcoin.DataEncoders;
+using NBitcoin.Protocol;
 using System.Diagnostics;
+using System.Text;
 
 namespace Server_Dotnet.Api.Auth
 {
@@ -10,7 +13,24 @@ namespace Server_Dotnet.Api.Auth
         [HttpGet]
         public string Get()
         {
-            return "{\"status\": \"ok\"}";
+            string? k1 = HttpContext.Request.Query["k1"];
+            string? key = HttpContext.Request.Query["key"];
+            string? sig = HttpContext.Request.Query["sig"];
+
+            var bytesSig = Encoders.Hex.DecodeData(sig);
+
+            NBitcoin.Crypto.ECDSASignature signature = new NBitcoin.Crypto.ECDSASignature(bytesSig);
+            NBitcoin.PubKey pubKey = new NBitcoin.PubKey(key);
+
+            bool result = LNURL.LNAuthRequest.VerifyChallenge(signature, pubKey, Encoders.Hex.DecodeData(k1));
+            
+            if (result)
+            {
+                return "{\"status\": \"OK\"}";
+            } else
+            {
+                return "{\"status\": \"ERROR\", \"reason\": \"Unable to login\"}";
+            }
         }
     }
 }

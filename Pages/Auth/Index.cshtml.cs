@@ -21,15 +21,6 @@ namespace Server_Dotnet.Pages.Auth
 
             uri = new Uri(url + hexStr);
             uri = LNURL.LNURL.EncodeUri(uri, "login", true);
-
-            string tag;
-            Uri decoded = LNURL.LNURL.Parse(uri.ToString(), out tag);
-            Debug.WriteLine(decoded);
-        }
-
-        public void OnPost()
-        {
-            Debug.WriteLine(HttpContext.Request.QueryString);
         }
     }
 }

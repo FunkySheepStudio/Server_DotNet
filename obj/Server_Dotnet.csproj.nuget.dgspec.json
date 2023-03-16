@@ -1,20 +1,20 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\Kaas\\Documents\\FunkySheep\\Games\\Server_Dotnet\\Server_Dotnet.csproj": {}
+    "C:\\Users\\sjarde.69r\\Documents\\FunkySheep\\Games\\Server_DotNet\\Server_Dotnet.csproj": {}
   },
   "projects": {
-    "C:\\Users\\Kaas\\Documents\\FunkySheep\\Games\\Server_Dotnet\\Server_Dotnet.csproj": {
+    "C:\\Users\\sjarde.69r\\Documents\\FunkySheep\\Games\\Server_DotNet\\Server_Dotnet.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\Kaas\\Documents\\FunkySheep\\Games\\Server_Dotnet\\Server_Dotnet.csproj",
+        "projectUniqueName": "C:\\Users\\sjarde.69r\\Documents\\FunkySheep\\Games\\Server_DotNet\\Server_Dotnet.csproj",
         "projectName": "Server_Dotnet",
-        "projectPath": "C:\\Users\\Kaas\\Documents\\FunkySheep\\Games\\Server_Dotnet\\Server_Dotnet.csproj",
-        "packagesPath": "C:\\Users\\Kaas\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\Kaas\\Documents\\FunkySheep\\Games\\Server_Dotnet\\obj\\",
+        "projectPath": "C:\\Users\\sjarde.69r\\Documents\\FunkySheep\\Games\\Server_DotNet\\Server_Dotnet.csproj",
+        "packagesPath": "C:\\Users\\sjarde.69r\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\sjarde.69r\\Documents\\FunkySheep\\Games\\Server_DotNet\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
-          "C:\\Users\\Kaas\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\sjarde.69r\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
