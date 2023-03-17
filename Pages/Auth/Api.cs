@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using NBitcoin.DataEncoders;
+using System.Diagnostics;
 
 namespace Server_Dotnet.Api.Auth
 {
@@ -23,6 +24,7 @@ namespace Server_Dotnet.Api.Auth
             
             if (result)
             {
+                Debug.WriteLine(key);
                 return "{\"status\": \"OK\"}";
             } else
             {
