@@ -1,0 +1,37 @@
+﻿@using Microsoft.AspNetCore.SignalR.Client
+@using Microsoft.JSInterop
+@inject NavigationManager Navigation
+@inject IJSRuntime JS
+
+<h3>Component</h3>
+<button @onclick="Send">Send</button>
+
+@code {
+    private HubConnection? hubConnection;
+
+    protected override async Task OnInitializedAsync()
+    {
+        hubConnection = new HubConnectionBuilder()
+            .WithUrl(Navigation.ToAbsoluteUri("/chatHub"))
+            .Build();
+
+        hubConnection.On<string>("ReceiveMessage", (id) =>
+        {
+            var encodedMsg = $"{id}";
+        });
+
+        await hubConnection.StartAsync();
+    }
+
+    private async Task Send()
+    {
+        await JS.InvokeVoidAsync("console.log", "test");
+        if (hubConnection is not null)
+        {
+            await hubConnection.SendAsync("SendMessage", "test");
+        }
+    }
+
+    public bool IsConnected =>
+        hubConnection?.State == HubConnectionState.Connected;
+}

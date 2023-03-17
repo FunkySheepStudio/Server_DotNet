@@ -1,8 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using NBitcoin.DataEncoders;
-using NBitcoin.Protocol;
-using System.Diagnostics;
-using System.Text;
 
 namespace Server_Dotnet.Api.Auth
 {
