@@ -1,5 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using NBitcoin.DataEncoders;
+using Server_Dotnet.Pages.Auth;
 
 namespace Server_Dotnet.Api.Auth
 {
@@ -7,6 +9,13 @@ namespace Server_Dotnet.Api.Auth
     [ApiController]
     public class AuthController : ControllerBase
     {
+        private readonly IHubContext<AuthHub> _hubContext;
+
+        public AuthController(IHubContext<AuthHub> hubContext)
+        {
+            _hubContext = hubContext;
+        }
+
         [HttpGet]
         public string Get()
         {
@@ -23,6 +32,7 @@ namespace Server_Dotnet.Api.Auth
             
             if (result)
             {
+                _hubContext.Clients.All.SendAsync("ReceiveMessage", $"Home page loaded at: {DateTime.Now}");
                 Console.WriteLine(key);
                 return "{\"status\": \"OK\"}";
             } else

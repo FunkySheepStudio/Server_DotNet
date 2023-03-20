@@ -25,7 +25,7 @@ app.UseAuthorization();
 app.MapRazorPages();
 app.MapControllers();
 app.MapBlazorHub();
-app.MapHub<ChatHub>("/chatHub", options =>
+app.MapHub<AuthHub>("/authhub", options =>
 {
     options.Transports = HttpTransportType.WebSockets;
 });

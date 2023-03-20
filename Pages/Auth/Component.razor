@@ -12,12 +12,13 @@
     protected override async Task OnInitializedAsync()
     {
         hubConnection = new HubConnectionBuilder()
-            .WithUrl(Navigation.ToAbsoluteUri("/chatHub"))
+            .WithUrl(Navigation.ToAbsoluteUri("/authhub"))
             .Build();
 
-        hubConnection.On<string>("ReceiveMessage", (id) =>
+        hubConnection.On<string>("ReceiveMessage", async (id) =>
         {
             var encodedMsg = $"{id}";
+            await JS.InvokeVoidAsync("console.log", id);
         });
 
         await hubConnection.StartAsync();
