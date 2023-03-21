@@ -9,7 +9,6 @@ namespace Server_Dotnet.Pages.Auth
     {
         public override Task OnConnectedAsync()
         {
-            
             Random rnd = new Random();
             var k1 = new Byte[32];
             rnd.NextBytes(k1);

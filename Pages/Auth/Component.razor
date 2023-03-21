@@ -18,7 +18,7 @@
     protected override async Task OnInitializedAsync()
     {
         hubConnection = new HubConnectionBuilder()
-            .WithUrl(Navigation.ToAbsoluteUri("/auth/hub"))
+            .WithUrl(Navigation.ToAbsoluteUri("/auth/hub?token=123"))
             .Build();
 
         hubConnection.On<string>("ReceiveToken", (Token) =>

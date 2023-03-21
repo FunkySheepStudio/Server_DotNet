@@ -7,7 +7,7 @@ namespace Server_Dotnet.Pages.Auth
     {
         protected override Task HandleRequirementAsync(AuthorizationHandlerContext context, CustomSignalrAuthRequirement requirement, HubInvocationContext resource)
         {
-            context.Succeed(requirement);
+            Console.WriteLine(resource.Context.GetHttpContext().Request.Query["token"]);
             //context.Fail();
 
             return Task.CompletedTask;
