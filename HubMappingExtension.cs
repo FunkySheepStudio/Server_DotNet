@@ -13,13 +13,19 @@ public static class HubMappingExtension
         {
             foreach (Type hub in assembly.GetTypes().Where(t => t.IsAssignableTo(typeof(Hub))))
             {
-                RouteAttribute routeAttribute = hub.GetCustomAttributes(typeof(RouteAttribute), true).FirstOrDefault() as RouteAttribute;
+                RouteAttribute? routeAttribute = hub.GetCustomAttributes(typeof(RouteAttribute), true).FirstOrDefault() as RouteAttribute;
+                if (routeAttribute == null)
+                    break;
+
                 if (!string.IsNullOrWhiteSpace(routeAttribute?.Template))
                 {
-                    MethodInfo mapHubMethod =
+                    MethodInfo? mapHubMethod =
                         typeof(HubEndpointRouteBuilderExtensions).GetMethod(
                             nameof(HubEndpointRouteBuilderExtensions.MapHub),
                             new Type[] { typeof(IEndpointRouteBuilder), typeof(string) });
+                    if (mapHubMethod == null)
+                        break;
+
                     mapHubMethod = mapHubMethod.MakeGenericMethod(hub);
                     mapHubMethod.Invoke(null, new object[] { endpoints, routeAttribute.Template });
                 }
