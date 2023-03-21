@@ -1,14 +1,22 @@
 ﻿using Microsoft.AspNetCore.SignalR;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Server_Dotnet.Pages.Auth
 {
-    //[Route("hub/[controller]")]
+    [Route("/auth/hub")]
     public class AuthHub : Hub
     {
         public override Task OnConnectedAsync()
         {
-            Console.WriteLine(Context.ConnectionId);
-            Clients.Caller.SendAsync("ReceiveMessage", "Send to only the last one");
+            
+            Random rnd = new Random();
+            var k1 = new Byte[32];
+            rnd.NextBytes(k1);
+
+            var hexArray = Array.ConvertAll(k1, x => x.ToString("X2"));
+            var hexStr = String.Concat(hexArray);
+
+            Clients.Caller.SendAsync("ReceiveToken", hexStr);
             return base.OnConnectedAsync();
         }
 

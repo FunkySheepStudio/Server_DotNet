@@ -25,9 +25,12 @@ app.UseAuthorization();
 app.MapRazorPages();
 app.MapControllers();
 app.MapBlazorHub();
-app.MapHub<AuthHub>("/authhub", options =>
+
+#pragma warning disable ASP0014
+app.UseEndpoints(endpoints =>
 {
-    options.Transports = HttpTransportType.WebSockets;
+    HubMappingExtension.MapHubs(endpoints);
 });
+#pragma warning restore ASP0014
 
 app.Run();

@@ -22,6 +22,11 @@ namespace Server_Dotnet.Api.Auth
             string? k1 = HttpContext.Request.Query["k1"];
             string? key = HttpContext.Request.Query["key"];
             string? sig = HttpContext.Request.Query["sig"];
+            string? connection = HttpContext.Request.Query["connection"];
+
+            if (k1 == null || key == null || sig == null || connection == null) {
+                return "{\"status\": \"ERROR\", \"reason\": \"Unable to login\"}";
+            }
 
             var bytesSig = Encoders.Hex.DecodeData(sig);
 
@@ -32,11 +37,11 @@ namespace Server_Dotnet.Api.Auth
             
             if (result)
             {
-                _hubContext.Clients.All.SendAsync("ReceiveMessage", $"Home page loaded at: {DateTime.Now}");
-                Console.WriteLine(key);
+                _hubContext.Clients.Client(connection).SendAsync("ReceiveResponse", true);
                 return "{\"status\": \"OK\"}";
             } else
             {
+                _hubContext.Clients.Client(connection).SendAsync("ReceiveResponse", false);
                 return "{\"status\": \"ERROR\", \"reason\": \"Unable to login\"}";
             }
         }

@@ -3,36 +3,47 @@
 @inject NavigationManager Navigation
 @inject IJSRuntime JS
 
-<h3>Component</h3>
-<button @onclick="Send">Send</button>
+@if (uri != null && !isAuth)
+{
+    <Server_Dotnet.Pages.Shared.Components.QrCode data="@uri.ToString()" />
+}
+
 
 @code {
     private HubConnection? hubConnection;
+    public Uri? uri { get; set; }
+    public bool isAuth { get; set; } = false;
+
 
     protected override async Task OnInitializedAsync()
     {
         hubConnection = new HubConnectionBuilder()
-            .WithUrl(Navigation.ToAbsoluteUri("/authhub"))
+            .WithUrl(Navigation.ToAbsoluteUri("/auth/hub"))
             .Build();
 
-        hubConnection.On<string>("ReceiveMessage", async (id) =>
+        hubConnection.On<string>("ReceiveToken", (Token) =>
         {
-            var encodedMsg = $"{id}";
-            await JS.InvokeVoidAsync("console.log", id);
+            string url = Navigation.BaseUri;
+            url += "api/auth/?tag=login&k1=";
+
+            Random rnd = new Random();
+            var k1 = new Byte[32];
+            rnd.NextBytes(k1);
+
+            var hexArray = Array.ConvertAll(k1, x => x.ToString("X2"));
+            var hexStr = String.Concat(hexArray);
+
+            uri = new Uri(url + hexStr + "&connection=" + hubConnection.ConnectionId);
+            uri = LNURL.LNURL.EncodeUri(uri, "login", true);
+            InvokeAsync(StateHasChanged);
+        });
+
+        hubConnection.On<bool>("ReceiveResponse", (isAuthResponse) =>
+        {
+            isAuth = isAuthResponse;
+            InvokeAsync(StateHasChanged);
         });
 
         await hubConnection.StartAsync();
     }
-
-    private async Task Send()
-    {
-        await JS.InvokeVoidAsync("console.log", "test");
-        if (hubConnection is not null)
-        {
-            await hubConnection.SendAsync("SendMessage", "test");
-        }
-    }
-
-    public bool IsConnected =>
-        hubConnection?.State == HubConnectionState.Connected;
 }
