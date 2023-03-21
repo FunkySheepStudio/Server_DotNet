@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.SignalR;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Server_Dotnet.Pages.Auth
 {
@@ -19,7 +20,7 @@ namespace Server_Dotnet.Pages.Auth
             Clients.Caller.SendAsync("ReceiveToken", hexStr);
             return base.OnConnectedAsync();
         }
-
+        [Authorize("CustomSignalrAuth")]
         public async Task SendMessage(string id)
         {
             Console.WriteLine(id);

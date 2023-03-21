@@ -35,6 +35,9 @@
 
             uri = new Uri(url + hexStr + "&connection=" + hubConnection.ConnectionId);
             uri = LNURL.LNURL.EncodeUri(uri, "login", true);
+
+            hubConnection.InvokeAsync("SendMessage", "test");
+
             InvokeAsync(StateHasChanged);
         });
 

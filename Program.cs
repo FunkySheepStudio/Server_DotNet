@@ -7,6 +7,13 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
 builder.Services.AddSignalR();
+builder.Services.AddAuthorization(options =>
+    {
+        options.AddPolicy("CustomSignalrAuth", policy =>
+        {
+            policy.Requirements.Add(new CustomSignalrAuthRequirement());
+        });
+    });
 
 var app = builder.Build();
 
