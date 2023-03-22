@@ -10,6 +10,8 @@ namespace Server_Dotnet.Api.Auth
     public class AuthController : ControllerBase
     {
         private readonly IHubContext<AuthHub> _hubContext;
+        private readonly Server_Dotnet.Pages.Users.Database userDb = new Server_Dotnet.Pages.Users.Database();
+        private readonly Database authDb = new Database();
 
         public AuthController(IHubContext<AuthHub> hubContext)
         {
@@ -37,6 +39,12 @@ namespace Server_Dotnet.Api.Auth
             
             if (result)
             {
+                userDb.Add(new Server_Dotnet.Pages.Users.User(pubKey.ToString()));
+                userDb.SaveChanges();
+
+                authDb.Add(new Connection(k1, pubKey.ToString()));
+                authDb.SaveChanges();
+
                 _hubContext.Clients.Client(connection).SendAsync("ReceiveResponse", true);
                 return "{\"status\": \"OK\"}";
             } else
