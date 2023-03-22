@@ -1,5 +1,7 @@
 ﻿@using Microsoft.AspNetCore.SignalR.Client
 @using Microsoft.JSInterop
+@using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage
+@inject ProtectedSessionStorage ProtectedSessionStore
 @inject NavigationManager Navigation
 @inject IJSRuntime JS
 
@@ -26,15 +28,10 @@
             string url = Navigation.BaseUri;
             url += "api/auth/?tag=login&k1=";
 
-            Random rnd = new Random();
-            var k1 = new Byte[32];
-            rnd.NextBytes(k1);
-
-            var hexArray = Array.ConvertAll(k1, x => x.ToString("X2"));
-            var hexStr = String.Concat(hexArray);
-
-            uri = new Uri(url + hexStr + "&connection=" + hubConnection.ConnectionId);
+            uri = new Uri(url + Token + "&connection=" + hubConnection.ConnectionId);
             uri = LNURL.LNURL.EncodeUri(uri, "login", true);
+
+            ProtectedSessionStore.SetAsync("Token", Token);
 
             hubConnection.InvokeAsync("SendMessage", "test");
 

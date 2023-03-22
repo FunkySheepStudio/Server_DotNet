@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
-namespace Server_Dotnet.Pages.Auth
+namespace Server_Dotnet.Pages.Users
 {
     public class IndexModel : PageModel
     {
