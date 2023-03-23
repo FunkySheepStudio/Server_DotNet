@@ -1,49 +1,15 @@
-﻿@using Microsoft.AspNetCore.SignalR.Client
-@using Microsoft.JSInterop
-@using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage
-@inject ProtectedSessionStorage ProtectedSessionStore
-@inject NavigationManager Navigation
-@inject IJSRuntime JS
+﻿@using System.Net.WebSockets
 
-@if (uri != null && !isAuth)
-{
-    <Server_Dotnet.Pages.Shared.Components.QrCode data="@uri.ToString()" />
-}
+<div>
+</div>
 
 
 @code {
-    private HubConnection? hubConnection;
-    public Uri? uri { get; set; }
-    public bool isAuth { get; set; } = false;
+    [Parameter]
+    public EventCallback<string> SendWsMessage { get; set; }
 
-
-    protected override async Task OnInitializedAsync()
+    protected override Task OnInitializedAsync()
     {
-        hubConnection = new HubConnectionBuilder()
-            .WithUrl(Navigation.ToAbsoluteUri("/auth/hub?token=123"))
-            .Build();
-
-        hubConnection.On<string>("ReceiveToken", (Token) =>
-        {
-            string url = Navigation.BaseUri;
-            url += "api/auth/?tag=login&k1=";
-
-            uri = new Uri(url + Token + "&connection=" + hubConnection.ConnectionId);
-            uri = LNURL.LNURL.EncodeUri(uri, "login", true);
-
-            ProtectedSessionStore.SetAsync("Token", Token);
-
-            hubConnection.InvokeAsync("SendMessage", "test");
-
-            InvokeAsync(StateHasChanged);
-        });
-
-        hubConnection.On<bool>("ReceiveResponse", (isAuthResponse) =>
-        {
-            isAuth = isAuthResponse;
-            InvokeAsync(StateHasChanged);
-        });
-
-        await hubConnection.StartAsync();
+        return SendWsMessage.InvokeAsync("test");
     }
 }

@@ -1,0 +1,62 @@
+﻿@page "/"
+@using System.Net.WebSockets
+@using System.Text
+@using System.Threading
+@implements IDisposable
+
+@if (@IsConnected())
+{
+    <Server_Dotnet.Pages.Auth.Component SendWsMessage="@Send" />
+    <pre>@log</pre>
+}
+else
+{
+    <div>
+        Not connected
+    </div>
+}
+
+@code {
+    string log = "";
+    ClientWebSocket webSocket = new ClientWebSocket();
+    CancellationTokenSource disposalTokenSource = new CancellationTokenSource();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await webSocket.ConnectAsync(new Uri("ws://localhost/ws"), disposalTokenSource.Token);
+        _ = ReceiveLoop();
+    }
+
+    async Task ReceiveLoop()
+    {
+        var buffer = new ArraySegment<byte>(new byte[1024]);
+        while (!disposalTokenSource.IsCancellationRequested)
+        {
+            // Note that the received block might only be part of a larger message. If this applies in your scenario,
+            // check the received.EndOfMessage and consider buffering the blocks until that property is true.
+            // Or use a higher-level library such as SignalR.
+            var received = await webSocket.ReceiveAsync(buffer, disposalTokenSource.Token);
+            var receivedAsText = Encoding.UTF8.GetString(buffer.Array, 0, received.Count);
+            log += $"Received: {receivedAsText}\n";
+            StateHasChanged();
+        }
+    }
+
+    async Task Send(string message)
+    {
+        log += $"Sending: {message}\n";
+        var dataToSend = new ArraySegment<byte>(Encoding.UTF8.GetBytes(message));
+        await webSocket.SendAsync(dataToSend, WebSocketMessageType.Text, true, disposalTokenSource.Token);
+    }
+
+    public bool IsConnected()
+    {
+        return webSocket.State == WebSocketState.Open;
+    }
+
+    public void Dispose()
+    {
+        disposalTokenSource.Cancel();
+        _ = webSocket.CloseAsync(WebSocketCloseStatus.NormalClosure, "Bye", CancellationToken.None);
+    }
+}
