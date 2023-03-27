@@ -1,24 +1,51 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using System.Buffers;
 using System.Net.WebSockets;
+using System.Text.Json;
+using System.Text;
+using Server_Dotnet.Pages.Messages;
 
 namespace Server_Dotnet.Pages.Sockets
 {
     public class SocketsController : ControllerBase
     {
+        ISocketsService socketService;
+        IMessagesService messagesService;
+
+        public SocketsController(ISocketsService socketService, IMessagesService messagesService)
+        {
+            this.socketService = socketService;
+            this.messagesService = messagesService;
+        }
+
         [Route("/ws")]
         public async Task Get()
         {
             if (HttpContext.WebSockets.IsWebSocketRequest)
             {
                 var webSocket = await HttpContext.WebSockets.AcceptWebSocketAsync();
-                Console.WriteLine("Connected");
+                //Console.WriteLine("Connected");
                 try
                 {
-                    await Echo(webSocket);
+                    Connection connection = new(GenerateConnectionId(), webSocket);
+                    this.socketService.connections.Add(connection);
+
+                    // Send the generated ID
+                    Message message = new Message("Socket", "SetId");
+                    message.ConnectionId = connection.id;
+                    this.messagesService.Send(message);
+
+                    await Listen(connection);
                 }
                 catch
                 {
-                    Console.WriteLine("Disconnected");
+                    Connection? closedConnection = this.socketService.connections.Find(connection => connection.socket == webSocket);
+
+                    if (closedConnection != null)
+                    {
+                        this.socketService.connections.Remove(closedConnection);
+                    }
+                    //Console.WriteLine("Disconnected");
                 }
             }
             else
@@ -27,28 +54,65 @@ namespace Server_Dotnet.Pages.Sockets
             }
         }
 
-        private static async Task Echo(WebSocket webSocket)
+        private async Task Listen(Connection connection)
         {
-            var buffer = new byte[1024 * 4];
-            var receiveResult = await webSocket.ReceiveAsync(
-                new ArraySegment<byte>(buffer), CancellationToken.None);
+            using IMemoryOwner<byte> memory = MemoryPool<byte>.Shared.Rent(1024 * 4);
+            var request = await connection.socket.ReceiveAsync(
+                memory.Memory, CancellationToken.None);
 
-            while (!receiveResult.CloseStatus.HasValue)
+            while (request.MessageType != WebSocketMessageType.Close)
             {
-                await webSocket.SendAsync(
-                    new ArraySegment<byte>(buffer, 0, receiveResult.Count),
-                    receiveResult.MessageType,
-                    receiveResult.EndOfMessage,
-                    CancellationToken.None);
+                switch (request.MessageType)
+                {
+                    case WebSocketMessageType.Text:
+                        string msg = Encoding.UTF8.GetString(memory.Memory.Span);
 
-                receiveResult = await webSocket.ReceiveAsync(
-                    new ArraySegment<byte>(buffer), CancellationToken.None);
+                        JsonDocument jsonDocument = JsonDocument.Parse(memory.Memory.Slice(0, request.Count));
+                        Messages.Message message = new(jsonDocument);
+                        message.ConnectionId = connection.id;
+                        break;
+                    default:
+                        break;
+                }
+
+                request = await connection.socket.ReceiveAsync(
+                memory.Memory, CancellationToken.None);
             }
 
-            await webSocket.CloseAsync(
-                receiveResult.CloseStatus.Value,
-                receiveResult.CloseStatusDescription,
+            await connection.socket.CloseAsync(
+                WebSocketCloseStatus.NormalClosure,
+                "Closing",
                 CancellationToken.None);
+        }
+
+        public void Test()
+        {
+            Console.WriteLine("test");
+        }
+
+        string GenerateConnectionId()
+        {
+            Random rnd = new Random();
+            var k1 = new Byte[32];
+            rnd.NextBytes(k1);
+
+            var hexArray = Array.ConvertAll(k1, x => x.ToString("X2"));
+            return String.Concat(hexArray);
+        }
+
+        public void GetConnectionID(Messages.Message message)
+        {
+            Console.WriteLine("execute");
+            Connection? connection = this.GetConnection(message.ConnectionId);
+            if (connection != null) {
+                var dataToSend = new ArraySegment<byte>(Encoding.UTF8.GetBytes(message.ToJSON()));
+                connection.socket.SendAsync(dataToSend, WebSocketMessageType.Text, true, CancellationToken.None);
+            }
+        }
+
+        public Connection? GetConnection(String connectionId)
+        {
+            return this.socketService.connections.Find(connection => connection.id == connectionId);
         }
     }
 }

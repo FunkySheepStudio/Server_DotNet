@@ -7,6 +7,21 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Pages\Auth\Component.razor.old" />
+    <None Remove="Pages\Auth\Index.cshtml.cs.old" />
+    <None Remove="Pages\Auth\Index.cshtml.old" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Include="Pages\Auth\Index.cshtml.cs.old" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="Pages\Auth\Component.razor.old" />
+    <Content Include="Pages\Auth\Index.cshtml.old" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="LNURL" Version="0.0.28" />
     <PackageReference Include="Microsoft.AspNetCore.SignalR" Version="1.1.0" />
     <PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="7.0.4" />

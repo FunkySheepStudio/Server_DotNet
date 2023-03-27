@@ -6,7 +6,7 @@
 
 @if (@IsConnected())
 {
-    <Server_Dotnet.Pages.Auth.Component SendWsMessage="@Send" />
+    <Server_Dotnet.Pages.Auth.Component SendWsMessage="@Send" @ref="Auth" />
     <pre>@log</pre>
 }
 else
@@ -17,6 +17,7 @@ else
 }
 
 @code {
+    Server_Dotnet.Pages.Auth.Component? Auth;
     string log = "";
     ClientWebSocket webSocket = new ClientWebSocket();
     CancellationTokenSource disposalTokenSource = new CancellationTokenSource();
@@ -25,6 +26,9 @@ else
     {
         await webSocket.ConnectAsync(new Uri("ws://localhost/ws"), disposalTokenSource.Token);
         _ = ReceiveLoop();
+
+        var message = new Messages.Message("Sockets", "GetConnectionID");
+        await Send(message);
     }
 
     async Task ReceiveLoop()
@@ -38,14 +42,15 @@ else
             var received = await webSocket.ReceiveAsync(buffer, disposalTokenSource.Token);
             var receivedAsText = Encoding.UTF8.GetString(buffer.Array, 0, received.Count);
             log += $"Received: {receivedAsText}\n";
+            Auth?.OnWsMessage(receivedAsText);
             StateHasChanged();
         }
     }
 
-    async Task Send(string message)
+    async Task Send(Messages.Message message)
     {
-        log += $"Sending: {message}\n";
-        var dataToSend = new ArraySegment<byte>(Encoding.UTF8.GetBytes(message));
+        log += $"Sending: {message.ToJSON()}\n";
+        var dataToSend = new ArraySegment<byte>(Encoding.UTF8.GetBytes(message.ToJSON()));
         await webSocket.SendAsync(dataToSend, WebSocketMessageType.Text, true, disposalTokenSource.Token);
     }
 

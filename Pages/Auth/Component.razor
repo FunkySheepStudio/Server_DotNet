@@ -1,15 +1,29 @@
 ﻿@using System.Net.WebSockets
+@using Microsoft.JSInterop
+@inject IJSRuntime JS
 
 <div>
+    <button @onclick="Send">
+        Update heading
+    </button>
+    @message
 </div>
 
 
 @code {
     [Parameter]
-    public EventCallback<string> SendWsMessage { get; set; }
+    public EventCallback<Messages.Message> SendWsMessage { get; set; }
 
-    protected override Task OnInitializedAsync()
+    string message = "";
+
+    protected Task Send()
     {
-        return SendWsMessage.InvokeAsync("test");
+        var message = new Messages.Message("Auth", "GetId");
+        return SendWsMessage.InvokeAsync(message);
+    }
+
+    public void OnWsMessage(string _message)
+    {
+        message = _message;
     }
 }

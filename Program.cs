@@ -1,10 +1,13 @@
-using Server_Dotnet.Pages.Auth;
+using Server_Dotnet.Pages.Messages;
+using Server_Dotnet.Pages.Sockets;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
+builder.Services.AddSingleton<ISocketsService, SocketsService>();
+builder.Services.AddSingleton<IMessagesService, MessagesService>();
 //builder.Services.AddSignalR();
 /*builder.Services.AddAuthorization(options =>
     {
