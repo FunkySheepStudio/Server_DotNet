@@ -1,0 +1,8 @@
+﻿@page "/"
+@inject Server_Dotnet.Pages.Sockets.ISocketsService sockets
+
+List
+@sockets.connections.Count
+
+@code {
+}

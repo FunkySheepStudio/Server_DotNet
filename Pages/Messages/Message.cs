@@ -9,6 +9,8 @@ namespace Server_Dotnet.Pages.Messages
         public string Method { get; set; }
         public string ConnectionId { get; set; } = "";
 
+        JsonElement root;
+
         public Message(string Controller = "", string Method = "")
         {
             this.Controller = Controller;
@@ -16,9 +18,14 @@ namespace Server_Dotnet.Pages.Messages
         }
 
         public Message(JsonDocument jsonDocument) {
-            JsonElement root = jsonDocument.RootElement;
+            root = jsonDocument.RootElement;
             this.Controller = root.GetProperty("Controller").ToString();
             this.Method = root.GetProperty("Method").ToString();
+        }
+
+        public string GetString(string property)
+        {
+            return root.GetProperty(property).ToString();
         }
 
         public string ToJSON()

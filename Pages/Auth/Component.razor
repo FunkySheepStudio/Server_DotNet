@@ -1,12 +1,15 @@
 ﻿@using System.Net.WebSockets
 @using Microsoft.JSInterop
+@using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage
+@inject ProtectedSessionStorage ProtectedSessionStore
+@inject NavigationManager Navigation
 @inject IJSRuntime JS
 
 <div>
-    <button @onclick="Send">
-        Update heading
-    </button>
-    @message
+    @if (uri != null && !isAuth)
+    {
+        <Server_Dotnet.Pages.Shared.Components.QrCode data="@uri?.ToString()" />
+    }
 </div>
 
 
@@ -14,7 +17,8 @@
     [Parameter]
     public EventCallback<Messages.Message> SendWsMessage { get; set; }
 
-    string message = "";
+    Uri? uri { get; set; }
+    bool isAuth = false;
 
     protected Task Send()
     {
@@ -22,8 +26,24 @@
         return SendWsMessage.InvokeAsync(message);
     }
 
-    public void OnWsMessage(string _message)
+    public void OnWsMessage(Messages.Message message)
     {
-        message = _message;
+        if (message.Controller != "Socket")
+            return;
+
+        if (message.Method == "SetId")
+        {
+            string SocketID = message.GetString("ConnectionId");
+
+            string url = Navigation.BaseUri;
+            url += "api/auth/?tag=login&k1=";
+
+            uri = new Uri(url + SocketID);
+            uri = LNURL.LNURL.EncodeUri(uri, "login", true);
+
+            ProtectedSessionStore.SetAsync("SocketID", SocketID);
+
+            StateHasChanged();
+        }
     }
 }

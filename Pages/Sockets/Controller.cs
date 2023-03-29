@@ -23,30 +23,7 @@ namespace Server_Dotnet.Pages.Sockets
         {
             if (HttpContext.WebSockets.IsWebSocketRequest)
             {
-                var webSocket = await HttpContext.WebSockets.AcceptWebSocketAsync();
-                //Console.WriteLine("Connected");
-                try
-                {
-                    Connection connection = new(GenerateConnectionId(), webSocket);
-                    this.socketService.connections.Add(connection);
-
-                    // Send the generated ID
-                    Message message = new Message("Socket", "SetId");
-                    message.ConnectionId = connection.id;
-                    this.messagesService.Send(message);
-
-                    await Listen(connection);
-                }
-                catch
-                {
-                    Connection? closedConnection = this.socketService.connections.Find(connection => connection.socket == webSocket);
-
-                    if (closedConnection != null)
-                    {
-                        this.socketService.connections.Remove(closedConnection);
-                    }
-                    //Console.WriteLine("Disconnected");
-                }
+                await OnConnection();
             }
             else
             {
@@ -62,7 +39,7 @@ namespace Server_Dotnet.Pages.Sockets
 
             while (request.MessageType != WebSocketMessageType.Close)
             {
-                switch (request.MessageType)
+				switch (request.MessageType)
                 {
                     case WebSocketMessageType.Text:
                         string msg = Encoding.UTF8.GetString(memory.Memory.Span);
@@ -83,11 +60,40 @@ namespace Server_Dotnet.Pages.Sockets
                 WebSocketCloseStatus.NormalClosure,
                 "Closing",
                 CancellationToken.None);
+
+            OnDisconnection(connection);
         }
 
-        public void Test()
+		async Task OnConnection()
         {
-            Console.WriteLine("test");
+			var webSocket = await HttpContext.WebSockets.AcceptWebSocketAsync();
+			Connection connection = new(GenerateConnectionId(), webSocket);
+			this.socketService.connections.Add(connection);
+
+			try
+			{
+				// Send the generated ID
+				Message message = new Message("Socket", "SetId");
+				message.ConnectionId = connection.id;
+				this.messagesService.Send(message);
+
+				await Listen(connection);
+			}
+			catch
+			{
+				OnDisconnection(connection);
+			}
+		}
+
+        void OnDisconnection(Connection connection)
+        {
+            Console.WriteLine($"Disconnection: {connection.id} ");
+            Connection? closedConnection = this.socketService.connections.Find(item => item == connection);
+
+            if (closedConnection != null)
+            {
+                this.socketService.connections.Remove(closedConnection);
+            }
         }
 
         string GenerateConnectionId()

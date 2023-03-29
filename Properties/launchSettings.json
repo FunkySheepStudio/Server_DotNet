@@ -3,11 +3,13 @@
     "http": {
       "commandName": "Project",
       "launchBrowser": true,
+      "launchUrl": "http://localhost",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       },
       "dotnetRunMessages": true,
-      "applicationUrl": "http://0.0.0.0:5100"
+      "applicationUrl": "http://localhost",
+      "nativeDebugging": false
     },
     "IIS Express": {
       "commandName": "IISExpress",
@@ -33,7 +35,7 @@
       "sslPort": 0
     },
     "iisExpress": {
-      "applicationUrl": "http://localhost:43188",
+      "applicationUrl": "http://localhost",
       "sslPort": 0
     }
   }

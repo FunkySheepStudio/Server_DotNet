@@ -4,12 +4,14 @@
     <TargetFramework>net7.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
+    <OutputType>Exe</OutputType>
   </PropertyGroup>
 
   <ItemGroup>
     <None Remove="Pages\Auth\Component.razor.old" />
     <None Remove="Pages\Auth\Index.cshtml.cs.old" />
     <None Remove="Pages\Auth\Index.cshtml.old" />
+    <None Remove="web.config.old" />
   </ItemGroup>
 
   <ItemGroup>
@@ -19,6 +21,7 @@
   <ItemGroup>
     <Content Include="Pages\Auth\Component.razor.old" />
     <Content Include="Pages\Auth\Index.cshtml.old" />
+    <Content Include="web.config.old" />
   </ItemGroup>
 
   <ItemGroup>
