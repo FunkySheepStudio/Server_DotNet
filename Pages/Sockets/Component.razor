@@ -12,12 +12,14 @@
     </p>
     <p hidden="@IsDisconnected()">
         <Server_Dotnet.Pages.Auth.Component SendWsMessage="@Send" @ref="Auth"/>
+        <Server_Dotnet.Pages.Sockets.Admin @ref="Admin" />
         <pre>@log</pre>
     </p>
 </div>
 
 @code {
     Server_Dotnet.Pages.Auth.Component? Auth;
+    Server_Dotnet.Pages.Sockets.Admin? Admin;
     string log = "";
     ClientWebSocket webSocket = new ClientWebSocket();
     CancellationTokenSource disposalTokenSource = new CancellationTokenSource();
@@ -46,6 +48,7 @@
                     Messages.Message message = new(jsonDocument);
 
                     Auth?.OnWsMessage(message);
+                    Admin?.OnWsMessage(message);
                     StateHasChanged();
                     break;
                 default:

@@ -1,0 +1,21 @@
+﻿@page "/"
+@inject Server_Dotnet.Pages.Sockets.ISocketsService sockets
+
+Admin
+
+@for (int i = 0; i < @sockets.connections.Count; i++)
+{
+	<li>
+		@sockets.connections[i].id
+	</li>
+}
+
+@code {
+		public void OnWsMessage(Messages.Message message)
+		{
+			if (message.Controller == "Socket" && message.Method == "SetId")
+			{
+				StateHasChanged();
+			}
+		}
+}

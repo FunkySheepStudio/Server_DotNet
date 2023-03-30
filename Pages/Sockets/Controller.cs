@@ -76,6 +76,7 @@ namespace Server_Dotnet.Pages.Sockets
 				Message message = new Message("Socket", "SetId");
 				message.ConnectionId = connection.id;
 				this.messagesService.Send(message);
+				this.messagesService.SendToAdmins(message);
 
 				await Listen(connection);
 			}
@@ -87,7 +88,7 @@ namespace Server_Dotnet.Pages.Sockets
 
         void OnDisconnection(Connection connection)
         {
-            Console.WriteLine($"Disconnection: {connection.id} ");
+            //Console.WriteLine($"Disconnection: {connection.id} ");
             Connection? closedConnection = this.socketService.connections.Find(item => item == connection);
 
             if (closedConnection != null)

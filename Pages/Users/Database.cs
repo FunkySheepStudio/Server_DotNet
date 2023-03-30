@@ -17,10 +17,17 @@ namespace Server_Dotnet.Pages.Users
     {
         [Required]
         public string Id { get; set; }
+		public bool Admin { get; set; } = false;
 
         public User(string Id)
         {
             this.Id = Id;
         }
-    }
+
+		public User(string Id, bool Admin)
+		{
+			this.Id = Id;
+			this.Admin = Admin;
+		}
+	}
 }

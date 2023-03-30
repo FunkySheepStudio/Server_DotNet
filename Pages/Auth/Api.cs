@@ -1,7 +1,9 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.SignalR;
 using NBitcoin.DataEncoders;
 using Server_Dotnet.Pages.Auth;
+using Server_Dotnet.Pages.Messages;
+using Server_Dotnet.Pages.Sockets;
+using Server_Dotnet.Pages.Users;
 
 namespace Server_Dotnet.Api.Auth
 {
@@ -9,14 +11,18 @@ namespace Server_Dotnet.Api.Auth
     [ApiController]
     public class AuthController : ControllerBase
     {
-        private readonly IHubContext<AuthHub> _hubContext;
-        private readonly Server_Dotnet.Pages.Users.Database userDb = new Server_Dotnet.Pages.Users.Database();
-        private readonly Database authDb = new Database();
+		ISocketsService _socketService;
+		IMessagesService _messagesService;
+        IAuthService _authService;
 
-        public AuthController(IHubContext<AuthHub> hubContext)
+        private readonly Server_Dotnet.Pages.Users.Database userDb = new ();
+
+        public AuthController(ISocketsService socketService, IMessagesService messagesService, IAuthService authService)
         {
-            _hubContext = hubContext;
-        }
+			this._socketService = socketService;
+			this._messagesService = messagesService;
+			this._authService = authService;
+		}
 
         [HttpGet]
         public string Get()
@@ -24,9 +30,8 @@ namespace Server_Dotnet.Api.Auth
             string? k1 = HttpContext.Request.Query["k1"];
             string? key = HttpContext.Request.Query["key"];
             string? sig = HttpContext.Request.Query["sig"];
-            string? connection = HttpContext.Request.Query["connection"];
 
-            if (k1 == null || key == null || sig == null || connection == null) {
+            if (k1 == null || key == null || sig == null) {
                 return "{\"status\": \"ERROR\", \"reason\": \"Unable to login\"}";
             }
 
@@ -36,20 +41,32 @@ namespace Server_Dotnet.Api.Auth
             NBitcoin.PubKey pubKey = new NBitcoin.PubKey(key);
 
             bool result = LNURL.LNAuthRequest.VerifyChallenge(signature, pubKey, Encoders.Hex.DecodeData(k1));
-            
-            if (result)
+
+			Connection? connection = _socketService.connections.Find((item) => item.id == k1);
+
+			if (result && connection != null)
             {
-                userDb.Add(new Server_Dotnet.Pages.Users.User(pubKey.ToString()));
-                userDb.SaveChanges();
+				User? user = userDb.Find<User>(pubKey.ToString());
 
-                authDb.Add(new Connection(k1, pubKey.ToString()));
-                authDb.SaveChanges();
+				if (user == null) {
+                    user = new Server_Dotnet.Pages.Users.User(pubKey.ToString(), true);
+					userDb.Add(user);
+                    userDb.SaveChanges();
+                }
 
-                _hubContext.Clients.Client(connection).SendAsync("ReceiveResponse", true);
-                return "{\"status\": \"OK\"}";
+				Message message = new Message("Auth", "AuthOk");
+                message.ConnectionId = k1;
+                this._messagesService.Send(message);
+				this._messagesService.SendToAdmins(message);
+
+				_authService.users_Connections.Add(new User_Connections(user, connection));
+
+				return "{\"status\": \"OK\"}";
             } else
             {
-                _hubContext.Clients.Client(connection).SendAsync("ReceiveResponse", false);
+                Message message = new Message("Auth", "AuthNOk");
+                message.ConnectionId = k1;
+                this._messagesService.Send(message);
                 return "{\"status\": \"ERROR\", \"reason\": \"Unable to login\"}";
             }
         }

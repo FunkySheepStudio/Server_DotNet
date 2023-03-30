@@ -9,18 +9,11 @@
 
   <ItemGroup>
     <None Remove="Pages\Auth\Component.razor.old" />
-    <None Remove="Pages\Auth\Index.cshtml.cs.old" />
-    <None Remove="Pages\Auth\Index.cshtml.old" />
     <None Remove="web.config.old" />
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Include="Pages\Auth\Index.cshtml.cs.old" />
-  </ItemGroup>
-
-  <ItemGroup>
     <Content Include="Pages\Auth\Component.razor.old" />
-    <Content Include="Pages\Auth\Index.cshtml.old" />
     <Content Include="web.config.old" />
   </ItemGroup>
 

@@ -28,10 +28,8 @@
 
     public void OnWsMessage(Messages.Message message)
     {
-        if (message.Controller != "Socket")
-            return;
 
-        if (message.Method == "SetId")
+        if (message.Controller == "Socket" && message.Method == "SetId")
         {
             string SocketID = message.GetString("ConnectionId");
 
@@ -43,6 +41,11 @@
 
             ProtectedSessionStore.SetAsync("SocketID", SocketID);
 
+            StateHasChanged();
+        }
+        else if (message.Controller == "Auth" && message.Method == "AuthOk")
+        {
+            isAuth = true;
             StateHasChanged();
         }
     }
