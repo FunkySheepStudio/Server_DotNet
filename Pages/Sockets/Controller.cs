@@ -4,6 +4,10 @@ using System.Net.WebSockets;
 using System.Text.Json;
 using System.Text;
 using Server_Dotnet.Pages.Messages;
+using Microsoft.AspNetCore.Http.Extensions;
+using System;
+using System.Text.Json.Nodes;
+using System.Buffers.Text;
 
 namespace Server_Dotnet.Pages.Sockets
 {
@@ -45,8 +49,7 @@ namespace Server_Dotnet.Pages.Sockets
                         string msg = Encoding.UTF8.GetString(memory.Memory.Span);
 
                         JsonDocument jsonDocument = JsonDocument.Parse(memory.Memory.Slice(0, request.Count));
-                        Messages.Message message = new(jsonDocument);
-                        message.ConnectionId = connection.id;
+                        Messages.Message message = new(jsonDocument, connection.id);
                         break;
                     default:
                         break;
@@ -72,13 +75,20 @@ namespace Server_Dotnet.Pages.Sockets
 
 			try
 			{
-				// Send the generated ID
-				Message message = new Message("Socket", "SetId");
-				message.ConnectionId = connection.id;
+                // Send the generated ID
+                Message message = new Message("Socket", "SetId", connection.id);
 				this.messagesService.Send(message);
 				this.messagesService.SendToAdmins(message);
+                // Send the auth connection lnurl
+                Uri uri = new Uri(HttpContext.Request.GetDisplayUrl());
 
-				await Listen(connection);
+                Uri lnUri = Auth.AuthService.GetAuthUri(uri.GetLeftPart(System.UriPartial.Authority), connection.id);
+
+                message = new Message("Auth", "SetUrl", connection.id);
+                message.SetString("Url", lnUri.ToString());
+                this.messagesService.Send(message);
+
+                await Listen(connection);
 			}
 			catch
 			{
@@ -109,8 +119,7 @@ namespace Server_Dotnet.Pages.Sockets
 
         public void GetConnectionID(Messages.Message message)
         {
-            Console.WriteLine("execute");
-            Connection? connection = this.GetConnection(message.ConnectionId);
+            Connection? connection = this.GetConnection(message.GetString("ConnectionId"));
             if (connection != null) {
                 var dataToSend = new ArraySegment<byte>(Encoding.UTF8.GetBytes(message.ToJSON()));
                 connection.socket.SendAsync(dataToSend, WebSocketMessageType.Text, true, CancellationToken.None);

@@ -8,7 +8,18 @@
 <div>
     @if (uri != null && !isAuth)
     {
-        <Server_Dotnet.Pages.Shared.Components.QrCode data="@uri?.ToString()" />
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Lightning network authentication</h5>
+                <Server_Dotnet.Pages.Shared.Components.QrCode data="@uri?.ToString()" />
+                <br>
+                <a class="btn btn-link" href="@uri?.ToString()" role="button">Open in wallet</a>
+            </div>
+        </div>
+    }
+    else if (isAuth)
+    {
+        <Server_Dotnet.Pages.Menu.Component/>
     }
 </div>
 
@@ -29,21 +40,17 @@
     public void OnWsMessage(Messages.Message message)
     {
 
-        if (message.Controller == "Socket" && message.Method == "SetId")
+        if (message.GetString("Controller") == "Socket" && message.GetString("Method") == "SetId")
         {
             string SocketID = message.GetString("ConnectionId");
-
-            string url = Navigation.BaseUri;
-            url += "api/auth/?tag=login&k1=";
-
-            uri = new Uri(url + SocketID);
-            uri = LNURL.LNURL.EncodeUri(uri, "login", true);
-
             ProtectedSessionStore.SetAsync("SocketID", SocketID);
-
+        }
+        else if (message.GetString("Controller") == "Auth" && message.GetString("Method") == "SetUrl")
+        {
+            uri = new Uri(message.GetString("Url"));
             StateHasChanged();
         }
-        else if (message.Controller == "Auth" && message.Method == "AuthOk")
+        else if (message.GetString("Controller") == "Auth" && message.GetString("Method") == "AuthOk")
         {
             isAuth = true;
             StateHasChanged();

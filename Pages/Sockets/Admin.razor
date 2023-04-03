@@ -13,7 +13,7 @@ Admin
 @code {
 		public void OnWsMessage(Messages.Message message)
 		{
-			if (message.Controller == "Socket" && message.Method == "SetId")
+			if (message.GetString("Controller") == "Socket" && message.GetString("Method") == "SetId")
 			{
 				StateHasChanged();
 			}

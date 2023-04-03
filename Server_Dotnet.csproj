@@ -9,11 +9,13 @@
 
   <ItemGroup>
     <None Remove="Pages\Auth\Component.razor.old" />
+    <None Remove="Pages\Menu\Component.razor.old" />
     <None Remove="web.config.old" />
   </ItemGroup>
 
   <ItemGroup>
     <Content Include="Pages\Auth\Component.razor.old" />
+    <Content Include="Pages\Menu\Component.razor.old" />
     <Content Include="web.config.old" />
   </ItemGroup>
 

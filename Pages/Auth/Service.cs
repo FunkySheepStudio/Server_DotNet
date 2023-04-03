@@ -23,5 +23,16 @@ namespace Server_Dotnet.Pages.Auth
 	{
 		List<User_Connections> _users_Connections = new();
 		List<User_Connections> IAuthService.users_Connections { get => _users_Connections; set => _users_Connections = value; }
+
+		public static Uri GetAuthUri(string pathBase, string SocketID)
+        {
+            string url = pathBase + "/auth/?tag=login&k1=";
+
+            Uri uri = new Uri(url + SocketID);
+
+			Console.WriteLine(uri.ToString());
+
+            return LNURL.LNURL.EncodeUri(uri, "login", true);
+        }
 	}
 }

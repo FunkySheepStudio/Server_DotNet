@@ -5,9 +5,9 @@ using Server_Dotnet.Pages.Messages;
 using Server_Dotnet.Pages.Sockets;
 using Server_Dotnet.Pages.Users;
 
-namespace Server_Dotnet.Api.Auth
+namespace Server_Dotnet.Auth
 {
-    [Route("api/[controller]")]
+    [Route("[controller]")]
     [ApiController]
     public class AuthController : ControllerBase
     {
@@ -54,8 +54,7 @@ namespace Server_Dotnet.Api.Auth
                     userDb.SaveChanges();
                 }
 
-				Message message = new Message("Auth", "AuthOk");
-                message.ConnectionId = k1;
+				Message message = new Message("Auth", "AuthOk", k1);
                 this._messagesService.Send(message);
 				this._messagesService.SendToAdmins(message);
 
@@ -64,8 +63,7 @@ namespace Server_Dotnet.Api.Auth
 				return "{\"status\": \"OK\"}";
             } else
             {
-                Message message = new Message("Auth", "AuthNOk");
-                message.ConnectionId = k1;
+                Message message = new Message("Auth", "AuthNOk", k1);
                 this._messagesService.Send(message);
                 return "{\"status\": \"ERROR\", \"reason\": \"Unable to login\"}";
             }

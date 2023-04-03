@@ -5,28 +5,36 @@
 @using System.Buffers;
 @using System.Text.Json;
 @implements IDisposable
+@inject NavigationManager navigation
+
 
 <div>
     <p hidden="@IsConnected()">
-        <pre>Disconnected</pre>
+        <div class="spinner-border" role="status" />
     </p>
     <p hidden="@IsDisconnected()">
         <Server_Dotnet.Pages.Auth.Component SendWsMessage="@Send" @ref="Auth"/>
-        <Server_Dotnet.Pages.Sockets.Admin @ref="Admin" />
-        <pre>@log</pre>
     </p>
+    <p hidden>
+        <Server_Dotnet.Pages.Sockets.Admin @ref="Admin" />
+    </p>
+    <pre>@count</pre>
+    <pre>@log</pre>
 </div>
 
 @code {
     Server_Dotnet.Pages.Auth.Component? Auth;
     Server_Dotnet.Pages.Sockets.Admin? Admin;
     string log = "";
+    int count = 0;
     ClientWebSocket webSocket = new ClientWebSocket();
     CancellationTokenSource disposalTokenSource = new CancellationTokenSource();
 
     protected override async Task OnInitializedAsync()
     {
-        await webSocket.ConnectAsync(new Uri("ws://localhost/ws"), disposalTokenSource.Token);
+        string url = navigation.BaseUri.Replace("http", "ws");
+
+        await webSocket.ConnectAsync(new Uri(url + "ws"), disposalTokenSource.Token);
         _ = Listen();
     }
 
@@ -41,6 +49,7 @@
             switch (request.MessageType)
             {
                 case WebSocketMessageType.Text:
+                    count++;
                     string msg = Encoding.UTF8.GetString(memory.Memory.Span.Slice(0, request.Count));
                     log += $"Received: {msg}\n";
 
@@ -55,8 +64,7 @@
                     break;
             }
 
-            request = await webSocket.ReceiveAsync(
-            memory.Memory, CancellationToken.None);
+            request = await webSocket.ReceiveAsync(memory.Memory, CancellationToken.None);
         }
 
         await webSocket.CloseAsync(

@@ -23,10 +23,7 @@ namespace Server_Dotnet.Pages.Messages
 
         public void Send(Message message)
         {
-            if (message.ConnectionId != null)
-            {
-                this.Send(message.ConnectionId, message);
-            }
+            this.Send(message.GetString("ConnectionId"), message);
         }
 
         public void Send(String connectionId, Message message)

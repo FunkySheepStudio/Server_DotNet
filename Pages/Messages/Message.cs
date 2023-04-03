@@ -1,36 +1,44 @@
 ﻿using System.Text.Json;
+using System.Text.Json.Nodes;
 
 namespace Server_Dotnet.Pages.Messages
 {
     [Serializable]
     public class Message
     {
-        public string Controller { get; set; }
-        public string Method { get; set; }
-        public string ConnectionId { get; set; } = "";
+        JsonObject root = new JsonObject();
 
-        JsonElement root;
-
-        public Message(string Controller = "", string Method = "")
+        public Message(string Controller = "", string Method = "", string ConnectionId = "")
         {
-            this.Controller = Controller;
-            this.Method = Method;
+            root["Controller"] = Controller;
+            root["Method"] = Method;
+            root["ConnectionId"] = ConnectionId;
         }
 
-        public Message(JsonDocument jsonDocument) {
-            root = jsonDocument.RootElement;
-            this.Controller = root.GetProperty("Controller").ToString();
-            this.Method = root.GetProperty("Method").ToString();
+        public Message(JsonDocument jsonDocument, string ConnectionId = "")
+        {
+            root = (JsonObject)JsonObject.Parse(jsonDocument.RootElement.ToString());
+            root["ConnectionId"] = ConnectionId;
         }
 
-        public string GetString(string property)
+		public Message(JsonDocument jsonDocument)
+		{
+            root = (JsonObject)JsonObject.Parse(jsonDocument.RootElement.ToString());
+		}
+
+		public string GetString(string property)
         {
-            return root.GetProperty(property).ToString();
+            return root[property].ToString();
+        }
+
+        public void SetString(string property, string value)
+        {
+            root[property] = value;
         }
 
         public string ToJSON()
         {
-            return JsonSerializer.Serialize(this);
+            return root.ToString();
         }
     }
 }
